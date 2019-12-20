@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import { Form, FormGroup, Label, Input, Button, FormText, Spinner } from 'reactstrap';
 
 import { axiosWithAuth } from '../utils/axiosWithAuth';
 
@@ -13,6 +13,7 @@ const Login = props => {
   // when you have handled the token, navigate to the BubblePage route
   const [credentials, setCredentials] = useState(initialCredentials);
   const [isFetching, setIsFetching] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = e => {
     e.preventDefault();
@@ -24,14 +25,17 @@ const Login = props => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    setIsFetching(true);
     axiosWithAuth()
       .post('/login', credentials)
-      .then(res => {
-        localStorage.setItem('token', res.data.payload);
-        setIsFetching(true);
+      .then(res => {        
+        localStorage.setItem('token', res.data.payload);        
         props.history.push('/bubbles');
       })
-      .catch(err => console.log(err.response.data.error));
+      .catch(err => {
+        setIsFetching(false);
+        setError(err.response.data.error);
+      });
   };
 
   return (
@@ -59,6 +63,7 @@ const Login = props => {
           />
         </FormGroup>
         <Button>Log In</Button>
+        {isFetching ? <Spinner color='secondary' /> : <FormText color='danger'>{error}</FormText>}
       </Form>
     </>
   );
