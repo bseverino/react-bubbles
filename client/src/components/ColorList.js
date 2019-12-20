@@ -10,6 +10,7 @@ const ColorList = ({ colors, updateColors }) => {
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
   const [id, setId] = useState(null);
+  const [colorToAdd, setColorToAdd] = useState(initialColor);
 
   const editColor = color => {
     setEditing(true);
@@ -19,9 +20,6 @@ const ColorList = ({ colors, updateColors }) => {
 
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
     axiosWithAuth()
       .put(`/colors/${id}`, colorToEdit)
       .then(res => {
@@ -45,6 +43,17 @@ const ColorList = ({ colors, updateColors }) => {
       .then(res => {
         const newColors = colors.filter(c => c.id !== color.id);
         updateColors(newColors);
+      })
+      .catch(err => console.log(err.response.data.error));
+  };
+
+  const addColor = e => {
+    e.preventDefault();
+    axiosWithAuth()
+      .post('/colors', colorToAdd)
+      .then(res => {
+        updateColors(res.data);
+        setColorToAdd(initialColor);
       })
       .catch(err => console.log(err.response.data.error));
   };
@@ -102,8 +111,34 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      <div className='spacer' />
-      {/* stretch - build another form here to add a color */}
+      <form onSubmit={addColor}>
+          <legend>add color</legend>
+          <label>
+            color name:
+            <input
+              onChange={e =>
+                setColorToAdd({ ...colorToAdd, color: e.target.value })
+              }
+              value={colorToAdd.color}
+            />
+          </label>
+          <label>
+            hex code:
+            <input
+              onChange={e =>
+                setColorToAdd({
+                  ...colorToAdd,
+                  code: { hex: e.target.value }
+                })
+              }
+              value={colorToAdd.code.hex}
+            />
+          </label>
+          <div className='button-row'>
+            <button type='submit'>add</button>
+          </div>
+        </form>
+      <div className='spacer' />      
     </div>
   );
 };
