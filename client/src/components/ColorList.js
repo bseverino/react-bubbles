@@ -137,8 +137,7 @@ const ColorList = ({ colors, updateColors }) => {
           <div className='button-row'>
             <button type='submit'>add</button>
           </div>
-        </form>
-      <div className='spacer' />      
+        </form>  
     </div>
   );
 };
